@@ -62,15 +62,18 @@ public class Ripple : ContentControl
     {
         foreach (var ripple in PressedInstances.ToList())
         {
-            var relativePosition = Mouse.GetPosition(ripple);
-            if (relativePosition.X < 0
-                || relativePosition.Y < 0
-                || relativePosition.X >= ripple.ActualWidth
-                || relativePosition.Y >= ripple.ActualHeight)
-
+            if (ripple.Dispatcher.CheckAccess())
             {
-                VisualStateManager.GoToState(ripple, TemplateStateMouseOut, true);
-                PressedInstances.Remove(ripple);
+                var relativePosition = Mouse.GetPosition(ripple);
+                if (relativePosition.X < 0
+                    || relativePosition.Y < 0
+                    || relativePosition.X >= ripple.ActualWidth
+                    || relativePosition.Y >= ripple.ActualHeight)
+
+                {
+                    VisualStateManager.GoToState(ripple, TemplateStateMouseOut, true);
+                    PressedInstances.Remove(ripple);
+                }
             }
         }
     }
