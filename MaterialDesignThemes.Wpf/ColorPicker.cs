@@ -55,10 +55,23 @@ public class ColorPicker : Control
             typeof(RoutedPropertyChangedEventHandler<Color>),
             typeof(ColorPicker));
 
+    public static readonly RoutedEvent ColorPickedEvent =
+            EventManager.RegisterRoutedEvent(
+                "ColorPicked",
+                RoutingStrategy.Bubble,
+                typeof(RoutedPropertyChangedEventHandler<Color>),
+                typeof(ColorPicker));
+
     public event RoutedPropertyChangedEventHandler<Color> ColorChanged
     {
         add => AddHandler(ColorChangedEvent, value);
         remove => RemoveHandler(ColorChangedEvent, value);
+    }
+
+    public event RoutedPropertyChangedEventHandler<Color> ColorPicked
+    {
+        add => AddHandler(ColorPickedEvent, value);
+        remove => RemoveHandler(ColorPickedEvent, value);
     }
 
     internal static readonly DependencyProperty HsbProperty = DependencyProperty.Register(nameof(Hsb), typeof(Hsb), typeof(ColorPicker),
@@ -86,8 +99,17 @@ public class ColorPicker : Control
         {
             color = hsb.ToColor();
         }
+        var oldColor = default(Color);
+        if (e.OldValue is Hsb hsb1)
+        {
+            oldColor = hsb1.ToColor();
+        }
         colorPicker.SetCurrentValue(ColorProperty, color);
-
+        var args = new RoutedPropertyChangedEventArgs<Color>(
+                (Color)oldColor,
+                (Color)color)
+        { RoutedEvent = ColorPickedEvent };
+        colorPicker.RaiseEvent(args);
         colorPicker._inCallback = false;
     }
 
